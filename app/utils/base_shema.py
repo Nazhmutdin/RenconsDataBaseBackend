@@ -1,14 +1,14 @@
 import typing
 
-from pydantic import BaseModel
+from pydantic import BaseModel as BaseDomainModel
 
-from app.db_engine import Base
+from app.db_engine import BaseModel
 
 
 _Shema = typing.TypeVar("_Shema", bound="BaseShema")
 
 
-class BaseShema[Model: Base](BaseModel):
+class BaseShema[Model: BaseModel](BaseDomainModel):
     __table_model__: Model
 
     @property

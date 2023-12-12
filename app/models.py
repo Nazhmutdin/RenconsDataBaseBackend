@@ -43,7 +43,7 @@ class WelderNDTModel(BaseModel):
     total_repair_3 = Column(Float(), nullable=True)
     repair_status_3 = Column(Float(), nullable=True)
     ndt_id = Column(String(), primary_key=True)
-    welder: Mapped[WelderModel] = relationship(back_populates="welder")
+    welder: Mapped[WelderModel] = relationship(back_populates="ndts")
 
 
 class WelderCertificationModel(BaseModel):
@@ -81,4 +81,4 @@ class WelderCertificationModel(BaseModel):
     details_diameter_from = Column(Float(), nullable=True)
     details_diameter_before = Column(Float(), nullable=True)
     welding_equipment = Column(String(), nullable=True)
-    welder: Mapped[WelderModel] = relationship(back_populates="welder")
+    welder: Mapped[WelderModel] = relationship(back_populates="certifications")

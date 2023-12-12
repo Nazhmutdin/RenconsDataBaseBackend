@@ -1,6 +1,6 @@
 from sqlalchemy import event
 
-from db_engine import get_session
+from app.db_engine import get_session
 
 
 class SQLalchemyUnitOfWork:
@@ -16,6 +16,7 @@ class SQLalchemyUnitOfWork:
 
 
     def __exit__(self, *args, **kwargs):
+        print(f"Execution amount: {self.count}")
         self.session.close()
         event.remove(self.engine, "before_cursor_execute", self.callback)
 

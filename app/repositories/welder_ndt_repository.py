@@ -14,7 +14,7 @@ class WelderNDTRepository(BaseRepository[WelderNDTShema, WelderNDTModel]):
     __tablemodel__ = WelderNDTModel
     __shema__ = WelderNDTShema
 
-    def get_many(self, request: WelderNDTDataBaseRequest) -> DBResponse[WelderNDTModel]:
+    def get_many(self, request: WelderNDTDataBaseRequest) -> DBResponse[WelderNDTShema]:
         session = get_session()
 
         stmt = select(WelderNDTModel, WelderModel.name, WelderCertificationModel.certification_number)\

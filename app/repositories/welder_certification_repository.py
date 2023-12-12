@@ -16,7 +16,7 @@ class WelderCertificationRepository(BaseRepository[WelderCertificationShema, Wel
     __tablemodel__ = WelderCertificationModel
     __shema__ = WelderCertificationShema
 
-    def get_many(self, request: WelderCertificationDataBaseRequest) -> DBResponse[WelderCertificationModel]:
+    def get_many(self, request: WelderCertificationDataBaseRequest) -> DBResponse[WelderCertificationShema]:
         with SQLalchemyUnitOfWork() as transaction:
 
             or_expressions, and_expressions = self._get_many_filtrating(request)

@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
@@ -10,9 +12,15 @@ welder_router = APIRouter()
 
 
 class WelderHTTPRequest(BaseModel):
-    names: list[str] | None = Field(default=None)
-    kleymos: list[str | int] | None = Field(default=None)
-    certification_numbers: list[str] | None = Field(default=None)
+    names: list[str] = Field(default=[])
+    kleymos: list[str | int] = Field(default=[])
+    certification_numbers: list[str] = Field(default=[], alias="certificationNumbers")
+    expiration_date_fact_from: date | None = Field(default=None, alias="expirationDateFactFrom")
+    expiration_date_fact_before: date | None = Field(default=None, alias="expirationDateFactBefore")
+    expiration_date_from: date | None = Field(default=None, alias="expirationDateFrom")
+    expiration_date_before: date | None = Field(default=None, alias="expirationDateBefore")
+    certification_date_from: date | None = Field(default=None, alias="certificationDateFrom")
+    certification_date_before: date | None = Field(default=None, alias="certificationDateBefore")
 
 
 @welder_router.get(path="/{id}")
