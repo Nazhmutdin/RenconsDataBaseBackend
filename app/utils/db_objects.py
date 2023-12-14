@@ -11,9 +11,9 @@ class DataBaseRequest(BaseModel):
 
 
 class WelderCertificationDataBaseRequest(DataBaseRequest):
-    kleymos: list[str] = Field(default=[])
+    kleymos: list[str] | None = Field(default=None)
     ids: list[str] = Field(default=[])
-    certification_numbers: list[str] = Field(default=[])
+    certification_numbers: list[str] | None = Field(default=None)
     certification_date_from: date | None = Field(default=None)
     certification_date_before: date | None = Field(default=None)
     expiration_date_from: date | None = Field(default=None)

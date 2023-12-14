@@ -55,6 +55,8 @@ class WelderRepository(BaseRepository[WelderModel, WelderModel]):
         or_expressions: list[BinaryExpression] = []
         and_expressions: list[BinaryExpression] = []
 
+        # print(request)
+
         if request.names:
             or_expressions.append(WelderModel.name.in_(request.names))
 
