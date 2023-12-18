@@ -22,13 +22,12 @@ def get_welder(id: str | int):
         return res
     
     return {
-        "result": res
+        "result": "welder not found"
     }
 
 
-@welder_router.post(path="/",response_model=DBResponse[WelderShema])
+@welder_router.post(path="/", response_model=DBResponse[WelderShema])
 def get_welders(request: WelderDataBaseRequest = Depends(set_welder_database_request)):
     repo = WelderRepository()
-    # print(request)
 
     return repo.get_many(request)

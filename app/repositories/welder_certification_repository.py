@@ -50,7 +50,10 @@ class WelderCertificationRepository(BaseRepository[WelderCertificationShema, Wel
         and_expressions: list[BinaryExpression] = []
 
         if request.ids:
-            and_expressions.append(WelderCertificationModel.certification_id.in_(request.ids))
+            or_expressions.append(WelderCertificationModel.certification_id.in_(request.ids))
+
+        if request.kleymos:
+            or_expressions.append(WelderCertificationModel.kleymo.in_(request.kleymos))
         
         if request.certification_numbers:
             and_expressions.append(WelderCertificationModel.certification_number.in_(request.certification_numbers))

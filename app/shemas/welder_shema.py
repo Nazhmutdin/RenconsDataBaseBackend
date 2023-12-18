@@ -17,7 +17,6 @@ class WelderShema(BaseShema):
     sicil_number: str | None = Field(default=None)
     nation: str | None = Field(default=None)
     status: int = Field(default=0)
-    certifications: list[WelderCertificationShema] = Field(default=[])
 
 
     @field_validator("kleymo")
@@ -28,15 +27,15 @@ class WelderShema(BaseShema):
         raise ValueError(f"Invalid kleymo: {v}")
 
 
-    def __eq__(self, __value: "WelderShema") -> bool:
-        if not super().__eq__(__value):
-            return False
+    # def __eq__(self, __value: "WelderShema") -> bool:
+    #     if not super().__eq__(__value):
+    #         return False
         
-        if len(__value.certifications) != len(self.certifications):
-            return False
+    #     if len(__value.certifications) != len(self.certifications):
+    #         return False
         
-        for i in range(len(self.certifications)):
-            if self.certifications[i] != __value.certifications[i]:
-                return False
+    #     for i in range(len(self.certifications)):
+    #         if self.certifications[i] != __value.certifications[i]:
+    #             return False
             
-        return True
+    #     return True

@@ -26,7 +26,7 @@ class WelderNDTModel(BaseModel):
     comp = Column(String(), nullable=True)
     subcon = Column(String(), nullable=True)
     project = Column(String(), nullable=True)
-    latest_welding_date = Column(Date(), nullable=True)
+    welding_date = Column(Date(), nullable=True)
     total_weld_1 = Column(Float(), nullable=True)
     total_ndt_1 = Column(Float(), nullable=True)
     total_accepted_1 = Column(Float(), nullable=True)

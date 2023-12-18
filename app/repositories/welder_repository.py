@@ -22,9 +22,7 @@ class WelderRepository(BaseRepository[WelderModel, WelderModel]):
 
             or_expressions, and_expressions = self._get_many_filtrating(request)
 
-            stmt = select(WelderModel).options(
-                subqueryload(WelderModel.certifications)
-            ).join(
+            stmt = select(WelderModel).join(
                 WelderCertificationModel
             ).filter(
                 and_(
@@ -37,13 +35,9 @@ class WelderRepository(BaseRepository[WelderModel, WelderModel]):
 
             count = self.count(stmt, transaction.connection)
 
-            if request.limit:
-                stmt = stmt.limit(request.limit)
-            
-            if request.offset:
-                stmt = stmt.offset(request.offset)
+            stmt = stmt.limit(request.limit).offset(request.offset)
 
-            welders = [WelderShema.model_validate(welder[0], from_attributes=True) for welder in transaction.session.execute(stmt).all()]
+            welders = [WelderShema.model_validate(welder, from_attributes=True) for welder in transaction.connection.execute(stmt).all()]
 
             return DBResponse(
                 result=welders,
@@ -55,7 +49,6 @@ class WelderRepository(BaseRepository[WelderModel, WelderModel]):
         or_expressions: list[BinaryExpression] = []
         and_expressions: list[BinaryExpression] = []
 
-        # print(request)
 
         if request.names:
             or_expressions.append(WelderModel.name.in_(request.names))
