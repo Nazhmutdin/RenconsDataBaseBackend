@@ -34,6 +34,7 @@ class WelderCertificationDataBaseRequest(DataBaseRequest):
 
 class WelderDataBaseRequest(WelderCertificationDataBaseRequest):
     names: list[str] | None = Field(default=None)
+    status: int | None = Field(default=None)
 
 
 class WelderNDTDataBaseRequest(DataBaseRequest):

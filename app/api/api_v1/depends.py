@@ -2,7 +2,7 @@ from datetime import date
 
 from pydantic import BaseModel, ConfigDict, field_validator, Field
 
-from app.utils.db_objects import WelderDataBaseRequest, WelderNDTDataBaseRequest
+from app.utils.db_objects import WelderDataBaseRequest, WelderNDTDataBaseRequest, WelderCertificationDataBaseRequest
 from app.utils.funcs import str_to_date
 
 
@@ -16,11 +16,11 @@ class WelderHTTPRequest(BaseModel):
     expiration_date_before: date | str | None = Field(default=None, alias="expirationDateBefore")
     certification_date_from: date | str | None = Field(default=None, alias="certificationDateFrom")
     certification_date_before: date | str | None = Field(default=None, alias="certificationDateBefore")
+    status: int | None = Field(default=None)
 
     model_config = ConfigDict(
         populate_by_name = True
     )
-
 
     @field_validator(
         "expiration_date_fact_from",
@@ -71,6 +71,26 @@ class WelderNDTHTTPRequest(BaseModel):
     welding_date_before: date | None = Field(default=None, alias="weldingDateBefore")
 
 
+class WelderCertificationHTTPRequest(BaseModel):
+    kleymos: list[str] = Field(default=[])
+    ids: list[str] = Field(default=[])
+    certification_numbers: list[str] = Field(default=[], alias="certificationNumbers")
+    certification_date_from: date | None = Field(default=None, alias="certificationDateFrom")
+    certification_date_before: date | None = Field(default=None, alias="certificationDateBefore")
+    expiration_date_from: date | None = Field(default=None, alias="expirationDateFrom")
+    expiration_date_before: date | None = Field(default=None, alias="expirationDateBefore")
+    expiration_date_fact_from: date | None = Field(default=None, alias="expirationDateFactFrom")
+    expiration_date_fact_before: date | None = Field(default=None, alias="expirationDateFactBefore")
+    details_thikness_from: float | None = Field(default=None, alias="detailsThiknessFrom")
+    details_thikness_before: float | None = Field(default=None, alias="detailsThiknessBefore")
+    outer_diameter_from: float | None = Field(default=None, alias="outerDiameterFrom")
+    outer_diameter_before: float | None = Field(default=None, alias="outerDiameterBefore")
+    rod_diameter_from: float | None = Field(default=None, alias="rodDiameterFrom")
+    rod_diameter_before: float | None = Field(default=None, alias="rodDiameterBefore")
+    details_diameter_from: float | None = Field(default=None, alias="detailsDiameterFrom")
+    details_diameter_before: float | None = Field(default=None, alias="detailsDiameterBefore")
+
+
 def set_welder_database_request(http_request: WelderHTTPRequest = WelderHTTPRequest(), page: int = 1, page_size: int = 100) -> WelderDataBaseRequest:
 
     if page < 1:
@@ -95,6 +115,21 @@ def set_welder_ndt_database_request(http_request: WelderNDTHTTPRequest = WelderN
         page_size = 100
 
     return WelderNDTDataBaseRequest(
+        **http_request.model_dump(),
+        limit=page_size,
+        offset=(page - 1) * page_size
+    )
+
+
+def set_welder_certification_database_request(http_request: WelderCertificationHTTPRequest = WelderCertificationHTTPRequest(), page: int = 1, page_size: int = 100) -> WelderNDTDataBaseRequest:
+
+    if page < 1:
+        page = 1
+    
+    if page_size < 1:
+        page_size = 100
+
+    return WelderCertificationDataBaseRequest(
         **http_request.model_dump(),
         limit=page_size,
         offset=(page - 1) * page_size

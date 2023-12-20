@@ -49,12 +49,14 @@ class WelderRepository(BaseRepository[WelderModel, WelderModel]):
         or_expressions: list[BinaryExpression] = []
         and_expressions: list[BinaryExpression] = []
 
-
         if request.names:
             or_expressions.append(WelderModel.name.in_(request.names))
 
         if request.kleymos:
             or_expressions.append(WelderModel.kleymo.in_(request.kleymos))
+
+        if request.status:
+            or_expressions.append(WelderModel.status == request.status)
 
         if request.certification_numbers:
             or_expressions.append(WelderCertificationModel.certification_number.in_(request.certification_numbers))
