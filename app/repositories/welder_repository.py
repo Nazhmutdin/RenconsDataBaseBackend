@@ -1,4 +1,4 @@
-from sqlalchemy import BinaryExpression, select, and_, or_
+from sqlalchemy import BinaryExpression, select, and_, or_, any_
 from sqlalchemy.orm import subqueryload
 
 from app.models import WelderCertificationModel, WelderModel
@@ -50,7 +50,8 @@ class WelderRepository(BaseRepository[WelderModel, WelderModel]):
         and_expressions: list[BinaryExpression] = []
 
         if request.names:
-            or_expressions.append(WelderModel.name.in_(request.names))
+            names = [f"%{name}%" for name in request.names]
+            or_expressions.append(WelderModel.name.ilike(any_(names)))
 
         if request.kleymos:
             or_expressions.append(WelderModel.kleymo.in_(request.kleymos))

@@ -14,7 +14,6 @@ def get_ndt(id) -> WelderNDTShema | dict:
     repo = WelderNDTRepository()
 
     ndt = repo.get(id)
-    print(id)
 
     if ndt == None:
         return {
@@ -25,7 +24,7 @@ def get_ndt(id) -> WelderNDTShema | dict:
 
 
 @welder_ndt_router.post(path="/", response_model=DBResponse[WelderNDTShema])
-def get_ndts(request:WelderNDTDataBaseRequest = Depends(set_welder_ndt_database_request)):
+def get_ndts(request: WelderNDTDataBaseRequest = Depends(set_welder_ndt_database_request)):
     repo = WelderNDTRepository()
 
     return repo.get_many(request)

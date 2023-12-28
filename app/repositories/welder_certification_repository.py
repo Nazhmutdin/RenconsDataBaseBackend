@@ -1,4 +1,4 @@
-from sqlalchemy import BinaryExpression, select, and_, or_
+from sqlalchemy import BinaryExpression, select, and_, or_, desc
 
 from app.models import WelderCertificationModel
 from app.utils.db_objects import (
@@ -26,7 +26,7 @@ class WelderCertificationRepository(BaseRepository[WelderCertificationShema, Wel
                     or_(*or_expressions),
                      *and_expressions
                 )
-            )
+            ).order_by(desc(WelderCertificationModel.certification_date))
 
             count = self.count(stmt, transaction.connection)
 
