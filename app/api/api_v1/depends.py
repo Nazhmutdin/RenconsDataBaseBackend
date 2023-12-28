@@ -7,9 +7,9 @@ from app.utils.funcs import str_to_date
 
 
 class WelderHTTPRequest(BaseModel):
-    names: list[str] = Field(default=[])
-    kleymos: list[str] = Field(default=[])
-    certification_numbers: list[str] = Field(default=[], alias="certificationNumbers")
+    names: list[str] | None = Field(default=None)
+    kleymos: list[str] | None = Field(default=None)
+    certification_numbers: list[str] | None = Field(default=None, alias="certificationNumbers")
     expiration_date_fact_from: date | str | None = Field(default=None, alias="expirationDateFactFrom")
     expiration_date_fact_before: date | str | None = Field(default=None, alias="expirationDateFactBefore")
     expiration_date_from: date | str | None = Field(default=None, alias="expirationDateFrom")
@@ -53,10 +53,12 @@ class WelderHTTPRequest(BaseModel):
         "certification_numbers"
     )
     @classmethod
-    def validate_list(cls, v: list) -> list:
+    def validate_list(cls, v: list | None) -> list | None:
+        if v == None:
+            return None
+        
         if len(v) == 1 and v[0] == "":
-            print(v)
-            return []
+            return None
         
         return v
     
@@ -67,8 +69,35 @@ class WelderNDTHTTPRequest(BaseModel):
     comps: list[str] | None = Field(default=None)
     subcomps: list[str] | None = Field(default=None)
     projects: list[str] | None = Field(default=None)
-    welding_date_from: date | None = Field(default=None, alias="weldingDateFrom")
-    welding_date_before: date | None = Field(default=None, alias="weldingDateBefore")
+    welding_date_from: date | str | None = Field(default=None, alias="weldingDateFrom")
+    welding_date_before: date | str | None = Field(default=None, alias="weldingDateBefore")
+    status_1_from: str | int | float | None = Field(default=None, alias="status1From")
+    status_1_before: str | int | float | None = Field(default=None, alias="status1Before")
+    status_2_from: str | int | float | None = Field(default=None, alias="status2From")
+    status_2_before: str | int | float | None = Field(default=None, alias="status2Before")
+    status_3_from: str | int | float | None = Field(default=None, alias="status3From")
+    status_3_before: str | int | float | None = Field(default=None, alias="status3Before")
+
+
+    @field_validator(
+        "welding_date_from",
+        "welding_date_before"
+    )
+    @classmethod
+    def validate_date(cls, v) -> date | None:
+        if type(v) == date:
+            return v
+        
+        if type(v) == str:
+            v = str_to_date(v)
+
+            if type(v) == date:
+                return v
+            
+            return None
+        
+        if v == None:
+            return None
 
 
 class WelderCertificationHTTPRequest(BaseModel):
@@ -113,7 +142,7 @@ def set_welder_ndt_database_request(http_request: WelderNDTHTTPRequest = WelderN
     
     if page_size < 1:
         page_size = 100
-
+        
     return WelderNDTDataBaseRequest(
         **http_request.model_dump(),
         limit=page_size,

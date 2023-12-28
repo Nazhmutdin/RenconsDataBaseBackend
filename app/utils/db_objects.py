@@ -45,6 +45,14 @@ class WelderNDTDataBaseRequest(DataBaseRequest):
     projects: list[str] | None = Field(default=None)
     welding_date_from: date | None = Field(default=None)
     welding_date_before: date | None = Field(default=None)
+    welding_date_from: date | str | None = Field(default=None)
+    welding_date_before: date | str | None = Field(default=None)
+    status_1_from: str | int | float | None = Field(default=None)
+    status_1_before: str | int | float | None = Field(default=None)
+    status_2_from: str | int | float | None = Field(default=None)
+    status_2_before: str | int | float | None = Field(default=None)
+    status_3_from: str | int | float | None = Field(default=None)
+    status_3_before: str | int | float | None = Field(default=None)
 
 
 class DBResponse[Model:BaseShema](BaseModel):

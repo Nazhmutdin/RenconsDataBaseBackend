@@ -1,4 +1,4 @@
-from sqlalchemy import Select, select, desc
+from sqlalchemy import BinaryExpression, Select, select, desc, and_, or_
 
 from app.models import WelderNDTModel, WelderModel
 from app.utils.db_objects import (
@@ -17,15 +17,22 @@ class WelderNDTRepository(BaseRepository[WelderNDTShema, WelderNDTModel]):
     def get_many(self, request: WelderNDTDataBaseRequest) -> DBResponse[WelderNDTShema]:
 
         with SQLalchemyUnitOfWork() as transaction:
+            or_expressions, and_expressions = self._get_many_filtrating(request)
 
             stmt = select(WelderNDTModel)\
-                .order_by(desc(WelderNDTModel.welding_date))
+                .order_by(desc(WelderNDTModel.welding_date))\
+                .filter(
+                    and_(
+                        *and_expressions,
+                        or_(*or_expressions)
+                    )
+                )
+            
+            count = self.count(stmt, transaction.connection)
 
-            filtrated_stmt = self._set_filters(stmt, request)
-            count = self.count(filtrated_stmt, transaction.connection)
-
-            filtrated_stmt = filtrated_stmt.limit(request.limit).offset(request.offset)
-            res = [WelderNDTShema.model_validate(el) for el in transaction.connection.execute(filtrated_stmt).mappings().all()]
+            stmt = stmt.limit(request.limit).offset(request.offset)
+            print(stmt)
+            res = [WelderNDTShema.model_validate(el) for el in transaction.connection.execute(stmt).mappings().all()]
 
             return DBResponse(
                 result=res,
@@ -33,14 +40,35 @@ class WelderNDTRepository(BaseRepository[WelderNDTShema, WelderNDTModel]):
             )
 
 
-    def _set_filters(self, stmt: Select, request: WelderNDTDataBaseRequest) -> Select:
+    def _get_many_filtrating(self, request: WelderNDTDataBaseRequest) -> Select:
+        or_expressions: list[BinaryExpression] = []
+        and_expressions: list[BinaryExpression] = []
+
         if request.kleymos:
-            stmt = stmt.filter(WelderNDTModel.kleymo.in_(request.kleymos))
+            or_expressions.append(WelderNDTModel.kleymo.in_(request.kleymos))
 
         if request.welding_date_before:
-            stmt = stmt.filter(WelderNDTModel.welding_date <= request.welding_date_before)
+            and_expressions.append(WelderNDTModel.welding_date <= request.welding_date_before)
 
         if request.welding_date_from:
-            stmt = stmt.filter(WelderNDTModel.welding_date >= request.welding_date_from)
+            and_expressions.append(WelderNDTModel.welding_date >= request.welding_date_from)
 
-        return stmt
+        if request.status_1_from:
+            and_expressions.append(WelderNDTModel.repair_status_1 >= request.status_1_from)
+
+        if request.status_1_before:
+            and_expressions.append(WelderNDTModel.repair_status_1 <= request.status_1_before)
+
+        if request.status_2_from:
+            and_expressions.append(WelderNDTModel.repair_status_2 >= request.status_2_from)
+
+        if request.status_2_before:
+            and_expressions.append(WelderNDTModel.repair_status_2 <= request.status_2_before)
+
+        if request.status_3_from:
+            and_expressions.append(WelderNDTModel.repair_status_3 >= request.status_3_from)
+
+        if request.status_3_before:
+            and_expressions.append(WelderNDTModel.repair_status_3 <= request.status_3_before)
+
+        return (or_expressions, and_expressions)
