@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from typing import Any
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import Select, Connection, update, insert, delete, inspect, select, func
@@ -15,7 +15,7 @@ from app.utils.UoW import SQLalchemyUnitOfWork
 
 
 
-class BaseRepository[Shema: BaseShema, Model: BaseModel](ABC):
+class BaseRepository[Shema: BaseShema, Model: BaseModel]:
     __tablemodel__: Model
     __shema__: Shema
 
@@ -37,14 +37,13 @@ class BaseRepository[Shema: BaseShema, Model: BaseModel](ABC):
             return result
 
 
-    @abstractmethod
     def get_many(self, request: DataBaseRequest) -> DBResponse[Shema]: ...
 
 
-    def add(self, model: Shema) -> None:
+    def add(self, **kwargs) -> None:
         with SQLalchemyUnitOfWork() as transaction:
             try:
-                stmt = insert(self.__tablemodel__).values(**model.orm_data)
+                stmt = insert(self.__tablemodel__).values(**kwargs)
 
                 transaction.connection.execute(stmt)
 
@@ -55,12 +54,12 @@ class BaseRepository[Shema: BaseShema, Model: BaseModel](ABC):
                 transaction.rollback()
 
 
-    def update(self, model: Shema) -> None:
+    def update(self, id: Any, **kwargs) -> None:
         with SQLalchemyUnitOfWork() as transaction:
             try:
                 stmt = update(self.__tablemodel__).where(
-                    self.pk == getattr(model, self.pk.name)
-                ).values(**model.orm_data)
+                    self.pk == id
+                ).values(**kwargs)
 
                 transaction.connection.execute(stmt)
 
@@ -71,11 +70,11 @@ class BaseRepository[Shema: BaseShema, Model: BaseModel](ABC):
                 transaction.rollback()
 
 
-    def delete(self, model: Shema) -> None:
+    def delete(self, id: Any) -> None:
         with SQLalchemyUnitOfWork() as transaction:
             try:
                 stmt = delete(self.__tablemodel__).where(
-                    self.pk == getattr(model, self.pk.name)
+                    self.pk == id
                 )
                 
                 transaction.connection.execute(stmt)

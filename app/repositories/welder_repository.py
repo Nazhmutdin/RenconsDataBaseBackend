@@ -11,7 +11,7 @@ from app.utils.base_repository import BaseRepository
 from app.shemas import WelderShema
 
 
-class WelderRepository(BaseRepository[WelderModel, WelderModel]):
+class WelderRepository(BaseRepository[WelderShema, WelderModel]):
     __tablemodel__ = WelderModel
     __shema__ = WelderShema
 
