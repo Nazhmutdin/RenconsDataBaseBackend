@@ -30,5 +30,9 @@ class Settings(BaseModel):
         return os.getenv("PORT")
     
     @classmethod
+    def SECRET_KEY(cls) -> str:
+        return os.getenv("SECRET_KEY")
+    
+    @classmethod
     def MODE(cls) -> str:
         return os.getenv("MODE")
