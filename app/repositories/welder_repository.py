@@ -4,7 +4,7 @@ from sqlalchemy.orm import subqueryload
 from app.models import WelderCertificationModel, WelderModel
 from app.utils.db_objects import (
     DBResponse,
-    WelderDataBaseRequest
+    WelderRequest
 )
 from app.utils.UoW import SQLalchemyUnitOfWork
 from app.utils.base_repository import BaseRepository
@@ -16,7 +16,7 @@ class WelderRepository(BaseRepository[WelderShema, WelderModel]):
     __shema__ = WelderShema
 
 
-    def get_many(self, request: WelderDataBaseRequest) -> DBResponse[WelderShema]:
+    def get_many(self, request: WelderRequest) -> DBResponse[WelderShema]:
             
         with SQLalchemyUnitOfWork() as transaction:
 
@@ -45,7 +45,7 @@ class WelderRepository(BaseRepository[WelderShema, WelderModel]):
             )
 
 
-    def _get_many_filtrating(self, request: WelderDataBaseRequest) -> tuple[list[BinaryExpression], list[BinaryExpression]]:
+    def _get_many_filtrating(self, request: WelderRequest) -> tuple[list[BinaryExpression], list[BinaryExpression]]:
         or_expressions: list[BinaryExpression] = []
         and_expressions: list[BinaryExpression] = []
 

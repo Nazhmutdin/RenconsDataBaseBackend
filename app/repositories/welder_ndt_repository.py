@@ -1,9 +1,9 @@
 from sqlalchemy import BinaryExpression, Select, select, desc, and_, or_
 
-from app.models import WelderNDTModel, WelderModel
+from app.models import WelderNDTModel
 from app.utils.db_objects import (
     DBResponse,
-    WelderNDTDataBaseRequest
+    WelderNDTRequest
 )
 from app.utils.base_repository import BaseRepository
 from app.utils.UoW import SQLalchemyUnitOfWork
@@ -14,7 +14,7 @@ class WelderNDTRepository(BaseRepository[WelderNDTShema, WelderNDTModel]):
     __tablemodel__ = WelderNDTModel
     __shema__ = WelderNDTShema
 
-    def get_many(self, request: WelderNDTDataBaseRequest) -> DBResponse[WelderNDTShema]:
+    def get_many(self, request: WelderNDTRequest) -> DBResponse[WelderNDTShema]:
 
         with SQLalchemyUnitOfWork() as transaction:
             or_expressions, and_expressions = self._get_many_filtrating(request)
@@ -40,7 +40,7 @@ class WelderNDTRepository(BaseRepository[WelderNDTShema, WelderNDTModel]):
             )
 
 
-    def _get_many_filtrating(self, request: WelderNDTDataBaseRequest) -> Select:
+    def _get_many_filtrating(self, request: WelderNDTRequest) -> Select:
         or_expressions: list[BinaryExpression] = []
         and_expressions: list[BinaryExpression] = []
 

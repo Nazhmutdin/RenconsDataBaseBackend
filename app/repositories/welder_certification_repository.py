@@ -3,7 +3,7 @@ from sqlalchemy import BinaryExpression, select, and_, or_, desc
 from app.models import WelderCertificationModel
 from app.utils.db_objects import (
     DBResponse,
-    WelderCertificationDataBaseRequest
+    WelderCertificationRequest
 )
 from app.utils.base_repository import BaseRepository
 from app.utils.UoW import SQLalchemyUnitOfWork
@@ -16,7 +16,7 @@ class WelderCertificationRepository(BaseRepository[WelderCertificationShema, Wel
     __tablemodel__ = WelderCertificationModel
     __shema__ = WelderCertificationShema
 
-    def get_many(self, request: WelderCertificationDataBaseRequest) -> DBResponse[WelderCertificationShema]:
+    def get_many(self, request: WelderCertificationRequest) -> DBResponse[WelderCertificationShema]:
         with SQLalchemyUnitOfWork() as transaction:
 
             or_expressions, and_expressions = self._get_many_filtrating(request)
@@ -45,7 +45,7 @@ class WelderCertificationRepository(BaseRepository[WelderCertificationShema, Wel
         )
 
 
-    def _get_many_filtrating(self, request: WelderCertificationDataBaseRequest) -> tuple[list[BinaryExpression], list[BinaryExpression]]:
+    def _get_many_filtrating(self, request: WelderCertificationRequest) -> tuple[list[BinaryExpression], list[BinaryExpression]]:
         or_expressions: list[BinaryExpression] = []
         and_expressions: list[BinaryExpression] = []
 

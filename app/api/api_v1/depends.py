@@ -1,165 +1,51 @@
-from datetime import date
+from fastapi import HTTPException, status
 
-from pydantic import BaseModel, ConfigDict, field_validator, Field
+from app.shemas import UserShema
+from app.repositories import UserRepository
+from app.api.auth.auth_utils import verify_password
+from app.utils.db_objects import BaseRequest, WelderRequest, WelderCertificationRequest, WelderNDTRequest
 
-from app.utils.db_objects import WelderDataBaseRequest, WelderNDTDataBaseRequest, WelderCertificationDataBaseRequest
-from app.utils.funcs import str_to_date
 
+def get_user(login: str, password: str) -> UserShema:
+    user = UserRepository().get(login)
 
-class WelderHTTPRequest(BaseModel):
-    names: list[str] | None = Field(default=None)
-    kleymos: list[str] | None = Field(default=None)
-    certification_numbers: list[str] | None = Field(default=None, alias="certificationNumbers")
-    expiration_date_fact_from: date | str | None = Field(default=None, alias="expirationDateFactFrom")
-    expiration_date_fact_before: date | str | None = Field(default=None, alias="expirationDateFactBefore")
-    expiration_date_from: date | str | None = Field(default=None, alias="expirationDateFrom")
-    expiration_date_before: date | str | None = Field(default=None, alias="expirationDateBefore")
-    certification_date_from: date | str | None = Field(default=None, alias="certificationDateFrom")
-    certification_date_before: date | str | None = Field(default=None, alias="certificationDateBefore")
-    status: int | None = Field(default=None)
-
-    model_config = ConfigDict(
-        populate_by_name = True
-    )
-
-    @field_validator(
-        "expiration_date_fact_from",
-        "expiration_date_fact_before",
-        "expiration_date_from", 
-        "expiration_date_before", 
-        "certification_date_from", 
-        "certification_date_before"
-    )
-    @classmethod
-    def validate_date(cls, v) -> date | None:
-        if type(v) == date:
-            return v
-        
-        if type(v) == str:
-            v = str_to_date(v)
-
-            if type(v) == date:
-                return v
-            
-            return None
-        
-        if v == None:
-            return None
-        
-
-    @field_validator(
-        "names",
-        "kleymos",
-        "certification_numbers"
-    )
-    @classmethod
-    def validate_list(cls, v: list | None) -> list | None:
-        if v == None:
-            return None
-        
-        if len(v) == 1 and v[0] == "":
-            return None
-        
-        return v
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="user not found"
+        )
     
-
-class WelderNDTHTTPRequest(BaseModel):
-    names: list[str] | None = Field(default=None)
-    kleymos: list[str | int] | None = Field(default=None)
-    comps: list[str] | None = Field(default=None)
-    subcomps: list[str] | None = Field(default=None)
-    projects: list[str] | None = Field(default=None)
-    welding_date_from: date | str | None = Field(default=None, alias="weldingDateFrom")
-    welding_date_before: date | str | None = Field(default=None, alias="weldingDateBefore")
-    status_1_from: str | int | float | None = Field(default=None, alias="status1From")
-    status_1_before: str | int | float | None = Field(default=None, alias="status1Before")
-    status_2_from: str | int | float | None = Field(default=None, alias="status2From")
-    status_2_before: str | int | float | None = Field(default=None, alias="status2Before")
-    status_3_from: str | int | float | None = Field(default=None, alias="status3From")
-    status_3_before: str | int | float | None = Field(default=None, alias="status3Before")
+    if not verify_password(password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="invalid password"
+        )
+    
+    return user
 
 
-    @field_validator(
-        "welding_date_from",
-        "welding_date_before"
-    )
-    @classmethod
-    def validate_date(cls, v) -> date | None:
-        if type(v) == date:
-            return v
-        
-        if type(v) == str:
-            v = str_to_date(v)
-
-            if type(v) == date:
-                return v
-            
-            return None
-        
-        if v == None:
-            return None
-
-
-class WelderCertificationHTTPRequest(BaseModel):
-    kleymos: list[str] = Field(default=[])
-    ids: list[str] = Field(default=[])
-    certification_numbers: list[str] = Field(default=[], alias="certificationNumbers")
-    certification_date_from: date | None = Field(default=None, alias="certificationDateFrom")
-    certification_date_before: date | None = Field(default=None, alias="certificationDateBefore")
-    expiration_date_from: date | None = Field(default=None, alias="expirationDateFrom")
-    expiration_date_before: date | None = Field(default=None, alias="expirationDateBefore")
-    expiration_date_fact_from: date | None = Field(default=None, alias="expirationDateFactFrom")
-    expiration_date_fact_before: date | None = Field(default=None, alias="expirationDateFactBefore")
-    details_thikness_from: float | None = Field(default=None, alias="detailsThiknessFrom")
-    details_thikness_before: float | None = Field(default=None, alias="detailsThiknessBefore")
-    outer_diameter_from: float | None = Field(default=None, alias="outerDiameterFrom")
-    outer_diameter_before: float | None = Field(default=None, alias="outerDiameterBefore")
-    rod_diameter_from: float | None = Field(default=None, alias="rodDiameterFrom")
-    rod_diameter_before: float | None = Field(default=None, alias="rodDiameterBefore")
-    details_diameter_from: float | None = Field(default=None, alias="detailsDiameterFrom")
-    details_diameter_before: float | None = Field(default=None, alias="detailsDiameterBefore")
-
-
-def set_welder_database_request(http_request: WelderHTTPRequest = WelderHTTPRequest(), page: int = 1, page_size: int = 100) -> WelderDataBaseRequest:
-
+def set_limit_offset[Request: BaseRequest](request: Request, page: int, page_size: int):
     if page < 1:
         page = 1
     
     if page_size < 1:
         page_size = 100
 
-    return WelderDataBaseRequest(
-        **http_request.model_dump(),
-        limit=page_size,
-        offset=(page - 1) * page_size
-    )
+    request.limit = page_size
+    request.offset = page_size * (page - 1)
+    return request
 
 
-def set_welder_ndt_database_request(http_request: WelderNDTHTTPRequest = WelderNDTHTTPRequest(), page: int = 1, page_size: int = 100) -> WelderNDTDataBaseRequest:
+def set_welder_request(request: WelderRequest = WelderRequest(), page: int = 1, page_size: int = 100):
 
-    if page < 1:
-        page = 1
-    
-    if page_size < 1:
-        page_size = 100
+    return set_limit_offset(request, page, page_size)
+
+
+def set_welder_ndt_request(request: WelderNDTRequest = WelderNDTRequest(), page: int = 1, page_size: int = 100):
         
-    return WelderNDTDataBaseRequest(
-        **http_request.model_dump(),
-        limit=page_size,
-        offset=(page - 1) * page_size
-    )
+    return set_limit_offset(request, page, page_size)
 
 
-def set_welder_certification_database_request(http_request: WelderCertificationHTTPRequest = WelderCertificationHTTPRequest(), page: int = 1, page_size: int = 100) -> WelderNDTDataBaseRequest:
-
-    if page < 1:
-        page = 1
+def set_welder_certification_request(request: WelderCertificationRequest = WelderCertificationRequest(), page: int = 1, page_size: int = 100):
     
-    if page_size < 1:
-        page_size = 100
-
-    return WelderCertificationDataBaseRequest(
-        **http_request.model_dump(),
-        limit=page_size,
-        offset=(page - 1) * page_size
-    )
+    return set_limit_offset(request, page, page_size)
