@@ -1,20 +1,8 @@
-from time import time_ns
-
 from fastapi import APIRouter
-from pydantic import BaseModel, Field
 
-from app.api.auth.auth_utils import create_access_token, read_token, get_user, UserAuthData
+from app.api.auth.auth_utils import create_access_token, read_token, get_user, UserAuthData, Token, UserData
 
 auth_router = APIRouter()
-
-
-class UserData(BaseModel):
-    name: str = Field()
-    email: str | None = Field()
-
-
-class Token(BaseModel):
-    access_token: str
 
 
 @auth_router.post("/login")

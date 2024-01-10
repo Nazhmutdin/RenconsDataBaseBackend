@@ -32,7 +32,7 @@ def get_ndts(request: Annotated[WelderNDTRequest, Depends(set_welder_ndt_request
     return repo.get_many(request)
 
 
-@v1_router.get(path="/welders{id}/")
+@v1_router.get(path="/welders/{id}")
 def get_welder(id: str | int):
     repo = WelderRepository()
 
@@ -68,7 +68,7 @@ def get_welder_certification(id: str) -> WelderCertificationShema | None:
     }
 
 
-@v1_router.post(path="/welder-certifications/",response_model=DBResponse[WelderCertificationShema])
+@v1_router.post(path="/welder-certifications/", response_model=DBResponse[WelderCertificationShema])
 def get_welders(request: Annotated[WelderCertificationRequest, Depends(set_welder_certification_request)]):
     repo = WelderCertificationRepository()
 
