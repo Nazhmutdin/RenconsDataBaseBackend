@@ -1,7 +1,7 @@
 from jose import jwt
 from passlib.context import CryptContext
 from fastapi import HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from app.repositories import UserRepository
 from app.settings import Settings
@@ -15,12 +15,18 @@ class UserAuthData(BaseModel):
 
 class TokenData(BaseModel):
     login: str
-    hashed_password: str
+    password: str
 
 
 class UserData(BaseModel):
-    name: str = Field()
-    email: str | None = Field()
+    name: str
+    login: str
+    email: str | None
+    is_superuser: bool = Field(alias="isSuperUser")
+
+    model_config = ConfigDict(
+        populate_by_name = True
+    )
 
 
 class Token(BaseModel):
@@ -44,12 +50,10 @@ def verify_password(password: str, hashed_password: str) -> bool:
 
 
 def create_access_token(user_data: UserAuthData) -> str:
-    user = get_user(**user_data.model_dump(mode="json"))
-
     return jwt.encode(
         {
-            "login": user.login,
-            "hashed_password": user.hashed_password
+            "login": user_data.login,
+            "password": user_data.password
         },
         Settings.SECRET_KEY(),
         algorithm=ALGORITHM
@@ -60,7 +64,7 @@ def read_token(token: Token) -> TokenData:
     return TokenData(**jwt.decode(token.access_token, Settings.SECRET_KEY(), ALGORITHM))
 
 
-def get_user(login: str, password: str) -> UserShema:
+def get_user(login: str, password: str) -> UserData:
     user = UserRepository().get(login)
 
     if not user:
@@ -75,4 +79,4 @@ def get_user(login: str, password: str) -> UserShema:
             detail="invalid password"
         )
     
-    return user
+    return UserData.model_validate(user, from_attributes=True)

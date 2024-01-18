@@ -50,6 +50,7 @@ class WelderRepository(BaseRepository[WelderShema, WelderModel]):
         and_expressions: list[BinaryExpression] = []
 
         if request.names:
+            print(request.names)
             names = [f"%{name}%" for name in request.names]
             or_expressions.append(WelderModel.name.ilike(any_(names)))
 
@@ -57,7 +58,7 @@ class WelderRepository(BaseRepository[WelderShema, WelderModel]):
             or_expressions.append(WelderModel.kleymo.in_(request.kleymos))
 
         if request.status:
-            or_expressions.append(WelderModel.status == request.status)
+            and_expressions.append(WelderModel.status == request.status)
 
         if request.certification_numbers:
             or_expressions.append(WelderCertificationModel.certification_number.in_(request.certification_numbers))

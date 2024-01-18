@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from pydantic import Field
-
 from app.utils.base_shema import BaseShema
 from app.models import UserModel
 

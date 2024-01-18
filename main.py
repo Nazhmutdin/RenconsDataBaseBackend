@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.api_v1.handlers import v1_router
-from app.api.auth.auth_handlers import auth_router
+from app.api.auth.handlers import auth_router
 from app.middlewares import CheckAuthMiddleware
 
 app = FastAPI()
@@ -15,6 +15,7 @@ origins = [
 ]
 
 
+app.add_middleware(CheckAuthMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -27,7 +28,6 @@ app.add_middleware(
         "Access-Control-Allow-Methods"
     ],
 )
-app.add_middleware(CheckAuthMiddleware)
 
 app.include_router(router=v1_router, prefix="/api/v1")
 app.include_router(router=auth_router, prefix="")

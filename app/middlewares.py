@@ -1,5 +1,3 @@
-from json import loads
-
 from typing import Any, Coroutine, Callable, Awaitable
 from fastapi import Request, status
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -7,7 +5,7 @@ from starlette.responses import Response, JSONResponse
 from starlette.types import Message
 
 from app.repositories import UserRepository
-from app.api.auth.auth_utils import Token, read_token
+from app.api.auth.utils import Token, read_token, verify_password
 
 
 class CheckAuthMiddleware(BaseHTTPMiddleware):
@@ -29,10 +27,8 @@ class CheckAuthMiddleware(BaseHTTPMiddleware):
         if "/api/v1" not in request.url.path:
             return await call_next(request)
         
-        await self.set_body(request)
-        
         try:
-            token: str = loads(await request.body()).get("access_token", None)
+            token: str = request.cookies.get("access_token", None)
         except:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -63,7 +59,7 @@ class CheckAuthMiddleware(BaseHTTPMiddleware):
                 content={"detail": "User not found"}
             )
 
-        if user.hashed_password != token_data.hashed_password:
+        if not verify_password(token_data.password, user.hashed_password):
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 content={"detail": "Invalid password"}

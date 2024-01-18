@@ -33,7 +33,7 @@ def get_ndts(request: Annotated[WelderNDTRequest, Depends(set_welder_ndt_request
 
 
 @v1_router.get(path="/welders/{id}")
-def get_welder(id: str | int):
+def get_welder(id: str | int) -> WelderShema | dict[str, str]:
     repo = WelderRepository()
 
     res = repo.get(id)
