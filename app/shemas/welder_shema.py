@@ -10,7 +10,7 @@ from app.shemas.welder_certification_shema import WelderCertificationShema
 
 class WelderShema(BaseShema):
     __table_model__ = WelderModel
-    kleymo: str = Field()
+    kleymo: str = Field(default="")
     name: str | None  = Field(default=None)
     birthday: date | None  = Field(default=None)
     passport_id: str | None = Field(default=None)
@@ -25,17 +25,3 @@ class WelderShema(BaseShema):
             return v
         
         raise ValueError(f"Invalid kleymo: {v}")
-
-
-    # def __eq__(self, __value: "WelderShema") -> bool:
-    #     if not super().__eq__(__value):
-    #         return False
-        
-    #     if len(__value.certifications) != len(self.certifications):
-    #         return False
-        
-    #     for i in range(len(self.certifications)):
-    #         if self.certifications[i] != __value.certifications[i]:
-    #             return False
-            
-    #     return True

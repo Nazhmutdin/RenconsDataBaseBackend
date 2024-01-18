@@ -9,8 +9,8 @@ from app.utils.base_shema import BaseShema
 
 class WelderNDTShema(BaseShema):
     __table_model__ = WelderNDTModel
-    kleymo: str | int
-    welding_date: date
+    kleymo: str | int = Field(default="")
+    welding_date: date = Field(default=date.today())
     comp: str | None = Field(default=None)
     subcon: str | None = Field(default=None)
     project: str | None = Field(default=None)
@@ -29,7 +29,7 @@ class WelderNDTShema(BaseShema):
     total_accepted_3: float | None = Field(default=None)
     total_repair_3: float | None = Field(default=None)
     repair_status_3: float | None = Field(default=None)
-    ndt_id: str
+    ndt_id: str = Field(default="")
 
 
     def compute_ndt_id(self) -> str:

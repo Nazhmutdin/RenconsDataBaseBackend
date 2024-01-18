@@ -9,13 +9,13 @@ from app.utils.base_shema import BaseShema
 
 class WelderCertificationShema(BaseShema):
     __table_model__ = WelderCertificationModel
-    kleymo: str = Field()
-    certification_id: str = Field()
+    kleymo: str = Field(default="")
+    certification_id: str = Field(default="")
     job_title: str | None = Field(default=None)
-    certification_number: str = Field()
-    certification_date: date = Field()
-    expiration_date: date = Field()
-    expiration_date_fact: date = Field()
+    certification_number: str = Field(default=date.today())
+    certification_date: date = Field(default=date.today())
+    expiration_date: date = Field(default=date.today())
+    expiration_date_fact: date = Field(default=date.today())
     insert: str | None = Field(default=None)
     certification_type: str | None = Field(default=None)
     company: str | None = Field(default=None)

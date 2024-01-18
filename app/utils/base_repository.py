@@ -40,10 +40,10 @@ class BaseRepository[Shema: BaseShema, Model: BaseModel]:
     def get_many[Request: BaseRequest](self, request: Request) -> DBResponse[Shema]: ...
 
 
-    def add(self, **kwargs) -> None:
+    def add(self, data: Shema) -> None:
         with SQLalchemyUnitOfWork() as transaction:
             try:
-                stmt = insert(self.__tablemodel__).values(**kwargs)
+                stmt = insert(self.__tablemodel__).values(**data.model_dump(mode="json"))
 
                 transaction.connection.execute(stmt)
 
