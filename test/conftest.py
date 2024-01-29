@@ -1,0 +1,78 @@
+import pytest
+import json
+
+from app.db_engine import BaseModel, engine
+from app.settings import Settings
+
+from app.shemas import WelderShema, WelderCertificationShema, WelderNDTShema, UserShema
+from app.repositories import WelderRepository, WelderCertificationRepository, WelderNDTRepository, UserRepository
+
+
+settings = Settings()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def prepare_db():
+    assert settings.MODE() == "TEST"
+
+    BaseModel.metadata.create_all(engine)
+    yield
+    BaseModel.metadata.drop_all(engine)
+
+
+def get_welders() -> list[WelderShema]:
+    welders = json.load(open("test/test_data/test_welders.json", "r", encoding="utf-8"))
+    return [WelderShema.model_validate(welder) for welder in welders]
+
+
+def get_welder_certifications() -> list[WelderCertificationShema]:
+    certifications = json.load(open("test/test_data/test_welder_certifications.json", "r", encoding="utf-8"))
+    return [WelderCertificationShema.model_validate(certification) for certification in certifications]
+
+
+def get_welder_ndts() -> list[WelderNDTShema]:
+    ndts = json.load(open("test/test_data/test_welder_ndts.json", "r", encoding="utf-8"))
+    return [WelderNDTShema.model_validate(ndt) for ndt in ndts]
+
+
+@pytest.fixture
+def welders() -> list[WelderShema]:
+    return get_welders()
+
+
+@pytest.fixture
+def welder_certifications() -> list[WelderCertificationShema]:
+    return get_welder_certifications()
+
+
+@pytest.fixture
+def welder_ndts() -> list[WelderNDTShema]:
+    return get_welder_ndts()
+
+
+@pytest.fixture(scope="class")
+@pytest.mark.usefixtures("welders")
+@pytest.mark.usefixtures("welder_certifications")
+@pytest.mark.usefixtures("welder_ndts")
+def add_data():
+    welder_repo = WelderRepository()
+    certification_repo = WelderCertificationRepository()
+    ndt_repo = WelderNDTRepository()
+
+    for welder in get_welders():
+        welder_repo.add(welder)
+
+    for certification in get_welder_certifications():
+        certification_repo.add(certification)
+
+    for ndt in get_welder_ndts():
+        ndt_repo.add(ndt)
+
+
+@pytest.fixture(scope="session")
+def add_users():
+    repo = UserRepository()
+    users = json.load(open("test/test_data/test_users.json", "r", encoding="utf-8"))
+
+    for user in [UserShema.model_validate(user) for user in users]:
+        repo.add(user)

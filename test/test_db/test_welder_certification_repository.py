@@ -1,28 +1,32 @@
 import pytest
 
-from app.db.repository import WelderCertificationRepository
-from app.domain import WelderCertificationShema, WelderShema
+from app.repositories import WelderCertificationRepository, WelderRepository
+from app.shemas import WelderCertificationShema, WelderShema
 
 
+@pytest.mark.run(order=2)
 class TestWelderCertificationRepository:
     repo = WelderCertificationRepository()
 
-    @pytest.mark.run(order=2)
     @pytest.mark.usefixtures('welder_certifications')
-    def test_add_welder_certification(self, welder_certifications: list[WelderCertificationShema]) -> None:
-        length = len(welder_certifications)
+    @pytest.mark.usefixtures('welders')
+    def test_add_welder_certification(self, welder_certifications: list[WelderCertificationShema], welders: list[WelderShema]) -> None:
+        welder_repo = WelderRepository()
+        for welder in welders:
+            welder_repo.add(welder)
+            
         for certification in welder_certifications:
             self.repo.add(certification)
         
-        assert self.repo.count() == length
+        assert self.repo.count() == len(welder_certifications)
 
     
     @pytest.mark.parametrize(
             "id, expectation",
             [
-                ("9ml3юр3гацi2192820220525", WelderCertificationShema),
-                ("7r54юр3гацi1756720170913", WelderCertificationShema),
-                ("c0lfюр9ацi0948320220418", WelderCertificationShema),
+                ("007bмр1гацi4291120230510", WelderCertificationShema),
+                ("04pcюр2гацi2055620141016", WelderCertificationShema),
+                ("04vnцр5ацi0702520221124", WelderCertificationShema),
             ]
     )
     def test_res_is_welder_certification_shema(self, id: int | str, expectation: WelderCertificationShema | None) -> None:
@@ -42,7 +46,7 @@ class TestWelderCertificationRepository:
     @pytest.mark.usefixtures('welder_certifications')
     @pytest.mark.parametrize(
             "index",
-            [1, 311, 63, 31, 75, 150]
+            [1, 13, 63, 31, 75, 89]
     )
     def test_add_with_existing_welder_certification(self, welder_certifications: list[WelderCertificationShema], index: int) -> None:
         self.repo.add(welder_certifications[index])
@@ -53,13 +57,13 @@ class TestWelderCertificationRepository:
     @pytest.mark.usefixtures('welder_certifications')
     @pytest.mark.parametrize(
             "index",
-            [1, 42, 76, 170, 33, 15]
+            [1, 42, 76, 99, 33, 15]
     )
     def test_update_welder_certification(self, welder_certifications: list[WelderCertificationShema], index: int) -> None:
         certification = welder_certifications[index]
         certification.gtd = ["111", "222"]
 
-        self.repo.update(certification)
+        self.repo.update(certification.certification_id, **certification.model_dump())
         updated_certification = self.repo.get(certification.certification_id)
         assert updated_certification.gtd == certification.gtd
 
@@ -72,6 +76,6 @@ class TestWelderCertificationRepository:
     def test_delete_welder_certification(self, welder_certifications: list[WelderCertificationShema], index: int) -> None:
         certification = welder_certifications[index]
 
-        self.repo.delete(certification)
+        self.repo.delete(certification.certification_id)
 
         assert self.repo.get(certification.certification_id) == None
