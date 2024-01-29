@@ -11,14 +11,6 @@ _Shema = typing.TypeVar("_Shema", bound="BaseShema")
 class BaseShema[Model: BaseModel](BaseDomainModel):
     __table_model__: Model
 
-    @property
-    def orm_data(self) -> dict[str, typing.Any]:
-        table_keys = list(self.__table_model__.__table__.c.keys())
-        model_data = self.model_dump()
-        
-        return {key: model_data[key] for key in table_keys}
-    
-
     def __eq__(self, __value: BaseModel) -> bool:
         if not isinstance(__value, type(self)):
             return False
@@ -33,3 +25,10 @@ class BaseShema[Model: BaseModel](BaseDomainModel):
                 return False
         
         return True
+    
+
+    def update(self, **kwargs) -> typing.Self:
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+        return self

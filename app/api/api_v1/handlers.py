@@ -26,51 +26,37 @@ def get_welder(id: str | int) -> WelderShema:
     return res
 
 
-@v1_router.put(path="/welders/{id}")
-def create_welder(id, welder_data: WelderShema) -> WelderShema:
+@v1_router.put(path="/welders")
+def add_welder(welder_data: WelderShema) -> WelderShema:
     repo = WelderRepository()
-    try:
-        repo.add(welder_data)
+    welder = repo.get(welder_data.kleymo)
 
-        welder = repo.get(id)
-
-        if not welder:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="welder not found after appending"
-            )
-        
-        return welder
-    
-    except: 
+    if welder:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="welder not appended"
+            detail="welder already exist"
         )
 
+    repo.add(welder_data)
 
-@v1_router.patch(path="/welders/{id}")
-def update_welder(id: str | int, welder_data: WelderShema) -> WelderShema:
+    return welder_data
+
+
+@v1_router.patch(path="/welders")
+def update_welder(welder_data: WelderShema) -> WelderShema:
     repo = WelderRepository()
 
-    try:
-        repo.update(id, **welder_data.model_dump(exclude_unset=True))
+    welder = repo.get(welder_data.kleymo)
 
-        welder = repo.get(id)
-
-        if not welder:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="welder not found"
-            )
-
-        return welder
-    
-    except:
+    if not welder:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="welder not updated"
+            detail="welder not found"
         )
+    
+    repo.update(welder_data.kleymo, **welder_data.model_dump(exclude_unset=True))
+    
+    return welder.update(**welder_data.model_dump(exclude_unset=True))
 
 
 @v1_router.delete(path="/welders/{id}")
@@ -117,51 +103,36 @@ def get_welder_certification(id: str) -> WelderCertificationShema | None:
     return res
 
 
-@v1_router.put(path="/welder-certifications/{id}")
-def create_welder_certification(id, certification_data: WelderCertificationShema) -> WelderCertificationShema:
+@v1_router.put(path="/welder-certifications")
+def add_welder_certification(certification_data: WelderCertificationShema) -> WelderCertificationShema:
     repo = WelderCertificationRepository()
-    try:
-        repo.add(certification_data)
+    certification = repo.get(certification_data.certification_id)
 
-        certification = repo.get(id)
-
-        if not certification:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="certification not found after appending"
-            )
-        
-        return certification
-    
-    except: 
+    if certification:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="certification not appended"
+            detail="certification already exist"
         )
 
-
-@v1_router.patch(path="/welder-certifications/{id}")
-def update_welder_certification(id: str | int, certification_data: WelderCertificationShema) -> WelderCertificationShema:
-    repo = WelderCertificationRepository()
-
-    try:
-        repo.update(id, **certification_data.model_dump(exclude_unset=True))
-
-        certification = repo.get(id)
-
-        if not certification:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="certification not found"
-            )
-
-        return certification
+    repo.add(certification_data)
     
-    except:
+    return certification_data
+
+
+@v1_router.patch(path="/welder-certifications")
+def update_welder_certification(certification_data: WelderCertificationShema) -> WelderCertificationShema:
+    repo = WelderCertificationRepository()
+    certification = repo.get(certification_data.certification_id)
+
+    if not certification:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="certification not updated"
+            detail="certification not found"
         )
+
+    repo.update(certification_data.certification_id, **certification_data.model_dump(exclude_unset=True))
+
+    return certification.update(**certification_data.model_dump(exclude_unset=True))
 
 
 @v1_router.delete(path="/welder-certifications/{id}")
@@ -209,51 +180,37 @@ def get_ndt(id) -> WelderNDTShema:
     return ndt
 
 
-@v1_router.put(path="/ndts/{id}")
-def create_ndt(id, ndt_data: WelderNDTShema) -> WelderNDTShema:
+@v1_router.put(path="/ndts")
+def add_ndt(ndt_data: WelderNDTShema) -> WelderNDTShema:
     repo = WelderNDTRepository()
-    try:
-        repo.add(ndt_data)
+    ndt = repo.get(ndt_data.ndt_id)
 
-        ndt = repo.get(id)
+    if ndt:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="ndt already exist"
+        )
+    
+    repo.add(ndt_data)
+    
+    return ndt_data
 
-        if not ndt:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="ndt not found after appending"
-            )
+
+@v1_router.patch(path="/ndts")
+def update_ndt(ndt_data: WelderNDTShema) -> WelderNDTShema:
+    repo = WelderNDTRepository()
+
+    ndt = repo.get(ndt_data.ndt_id)
+
+    if not ndt:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="ndt not found"
+        )
         
-        return ndt
-    
-    except: 
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="ndt not appended"
-        )
+    repo.update(ndt_data.ndt_id, **ndt_data.model_dump(exclude_unset=True))
 
-
-@v1_router.patch(path="/ndts/{id}")
-def update_ndt(id: str | int, ndt_data: WelderNDTShema) -> WelderNDTShema:
-    repo = WelderNDTRepository()
-
-    try:
-        repo.update(id, **ndt_data.model_dump(exclude_unset=True))
-
-        ndt = repo.get(id)
-
-        if not ndt:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="ndt not found"
-            )
-
-        return ndt
-    
-    except:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="ndt not updated"
-        )
+    return ndt.update(**ndt_data.model_dump(exclude_unset=True))
 
 
 @v1_router.delete(path="/ndts/{id}")

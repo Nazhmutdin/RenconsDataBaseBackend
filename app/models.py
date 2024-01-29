@@ -24,7 +24,7 @@ class WelderModel(BaseModel):
 class WelderNDTModel(BaseModel):
     __tablename__ = "welder_ndt_table"
     
-    kleymo: Mapped[str | int] = Column(String(4), ForeignKey("welder_table.kleymo"))
+    kleymo: Mapped[str | int] = Column(String(4), ForeignKey("welder_table.kleymo", ondelete="CASCADE"))
     comp: Mapped[str] = Column(String(), nullable=True)
     subcon: Mapped[str] = Column(String(), nullable=True)
     project: Mapped[str] = Column(String(), nullable=True)
@@ -51,7 +51,7 @@ class WelderNDTModel(BaseModel):
 class WelderCertificationModel(BaseModel):
     __tablename__ = "welder_certification_table"
 
-    kleymo: Mapped[str] = Column(String(4), ForeignKey("welder_table.kleymo"))
+    kleymo: Mapped[str] = Column(String(4), ForeignKey("welder_table.kleymo", ondelete="CASCADE"))
     certification_id: Mapped[str] = Column(String(), primary_key=True)
     job_title: Mapped[str] = Column(String(), nullable=True)
     certification_number: Mapped[str] = Column(String())

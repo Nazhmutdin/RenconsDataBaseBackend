@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from pydantic import ConfigDict
+
 from app.utils.base_shema import BaseShema
 from app.models import UserModel
 
@@ -14,6 +16,10 @@ class BaseUserShema(BaseShema):
     login_date: datetime
     is_active: bool
     is_superuser: bool
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
 
 
 class UserShema(BaseUserShema):

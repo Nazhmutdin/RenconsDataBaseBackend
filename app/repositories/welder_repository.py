@@ -1,5 +1,4 @@
 from sqlalchemy import BinaryExpression, select, and_, or_, any_
-from sqlalchemy.orm import subqueryload
 
 from app.models import WelderCertificationModel, WelderModel
 from app.utils.db_objects import (

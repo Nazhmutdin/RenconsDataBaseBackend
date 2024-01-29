@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field, ConfigDict
 
 from app.repositories import UserRepository
 from app.settings import Settings
-from app.shemas import UserShema
 
 
 class UserAuthData(BaseModel):
@@ -69,7 +68,7 @@ def get_user(login: str, password: str) -> UserData:
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="user not found"
         )
     

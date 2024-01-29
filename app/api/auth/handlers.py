@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Request, HTTPException, status
+from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 
 from app.shemas.user_shemas import BaseUserShema
-from app.api.auth.utils import create_access_token, read_token, get_user, UserAuthData, Token, UserData
+from app.api.auth.utils import create_access_token, get_user, UserAuthData
 
 auth_router = APIRouter()
 

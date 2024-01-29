@@ -12,7 +12,7 @@ def load_json(path: str | Path) -> typing.Any:
 
 def str_to_date(date_string: str) -> date | None:
     try:
-        return parser().parse(date_string).date()
+        return parser().parse(date_string, dayfirst=True).date()
 
     except:
         return None
