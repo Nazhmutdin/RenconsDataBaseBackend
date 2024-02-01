@@ -21,17 +21,17 @@ def prepare_db():
 
 
 def get_welders() -> list[WelderShema]:
-    welders = json.load(open("test/test_data/test_welders.json", "r", encoding="utf-8"))
+    welders = json.load(open("test/test_data/welders.json", "r", encoding="utf-8"))
     return [WelderShema.model_validate(welder) for welder in welders]
 
 
 def get_welder_certifications() -> list[WelderCertificationShema]:
-    certifications = json.load(open("test/test_data/test_welder_certifications.json", "r", encoding="utf-8"))
+    certifications = json.load(open("test/test_data/welder_certifications.json", "r", encoding="utf-8"))
     return [WelderCertificationShema.model_validate(certification) for certification in certifications]
 
 
 def get_welder_ndts() -> list[WelderNDTShema]:
-    ndts = json.load(open("test/test_data/test_welder_ndts.json", "r", encoding="utf-8"))
+    ndts = json.load(open("test/test_data/welder_ndts.json", "r", encoding="utf-8"))
     return [WelderNDTShema.model_validate(ndt) for ndt in ndts]
 
 
@@ -50,10 +50,25 @@ def welder_ndts() -> list[WelderNDTShema]:
     return get_welder_ndts()
 
 
+@pytest.fixture
+def test_welders() -> list[WelderShema]:
+    welders = json.load(open("test/test_data/test_welders.json", "r", encoding="utf-8"))
+    return [WelderShema.model_validate(welder) for welder in welders]
+
+
+@pytest.fixture
+def test_welder_certifications() -> list[WelderCertificationShema]:
+    certifications = json.load(open("test/test_data/test_welder_certifications.json", "r", encoding="utf-8"))
+    return [WelderCertificationShema.model_validate(certification) for certification in certifications]
+
+
+@pytest.fixture
+def test_welder_ndts() -> list[WelderNDTShema]:
+    ndts = json.load(open("test/test_data/test_welder_ndts.json", "r", encoding="utf-8"))
+    return [WelderNDTShema.model_validate(ndt) for ndt in ndts]
+
+
 @pytest.fixture(scope="class")
-@pytest.mark.usefixtures("welders")
-@pytest.mark.usefixtures("welder_certifications")
-@pytest.mark.usefixtures("welder_ndts")
 def add_data():
     welder_repo = WelderRepository()
     certification_repo = WelderCertificationRepository()
@@ -72,7 +87,7 @@ def add_data():
 @pytest.fixture(scope="session")
 def add_users():
     repo = UserRepository()
-    users = json.load(open("test/test_data/test_users.json", "r", encoding="utf-8"))
+    users = json.load(open("test/test_data/users.json", "r", encoding="utf-8"))
 
     for user in [UserShema.model_validate(user) for user in users]:
         repo.add(user)

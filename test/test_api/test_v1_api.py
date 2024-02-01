@@ -8,9 +8,43 @@ from client import client
 @pytest.mark.usefixtures("add_data")
 class TestV1ApiEndpoints:
 
-    def test_get_welder(self):
+    @pytest.mark.parametrize(
+            "id",
+            ["1M65", "01M8", "04PC"]
+    )
+    def test_get_welder(self, id: str | int):
 
-        response = client.get("/api/v1/welders/0324")
+        response = client.get(f"/api/v1/welders/{id}")
+
+        assert response.status_code == 200
+
+
+    @pytest.mark.parametrize(
+            "id",
+            [
+                "007bмр1гацi4291120230510", 
+                "01e0бр1ацi0208220141007", 
+                "01esсур16ацi0336920210714в1"
+            ]
+    )
+    def test_get_welder_certification(self, id: str):
+
+        response = client.get(f"/api/v1/welder-certifications/{id}")
+
+        assert response.status_code == 200
+
+
+    @pytest.mark.parametrize(
+            "id",
+            [
+                "1hcsrhikipelectricalinstallationudokan20230904", 
+                "0cz5sarenponderaalng220220719", 
+                "13z7hsconstructionmetalyapiawp1b20210609"
+            ]
+    )
+    def test_get_ndt(self, id: str):
+
+        response = client.get(f"/api/v1/ndts/{id}")
 
         assert response.status_code == 200
 
@@ -23,6 +57,34 @@ class TestV1ApiEndpoints:
                 "kleymo": "0000",
             }
         )
+
+        assert response.status_code == 200
+
+        assert client.get("/api/v1/welders/0000").status_code == 200
+
+
+    # def test_create_welder_certification(self):
+    #     response = client.put(
+    #         "/api/v1/welder-certifications/",
+    #         json={
+    #             "name": "TestWelder",
+    #             "kleymo": "0000",
+    #         }
+    #     )
+
+    #     assert response.status_code == 200
+
+    #     assert client.get("/api/v1/welders/0000").status_code == 200
+
+
+    # def test_create_ndt(self):
+    #     response = client.put(
+    #         "/api/v1/welders/",
+    #         json={
+    #             "name": "TestWelder",
+    #             "kleymo": "0000",
+    #         }
+    #     )
 
         assert response.status_code == 200
 
