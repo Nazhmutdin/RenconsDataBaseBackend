@@ -10,15 +10,15 @@ class TestWelderCertificationRepository:
 
     @pytest.mark.usefixtures('welder_certifications')
     @pytest.mark.usefixtures('welders')
-    def test_add_welder_certification(self, welder_certifications: list[WelderCertificationShema], welders: list[WelderShema]) -> None:
-        welder_repo = WelderRepository()
-        for welder in welders:
-            welder_repo.add(welder)
+    def test_add_welder_certification(self, welder_certifications: list[WelderCertificationShema]) -> None:
+
+        assert WelderRepository().count() == 100
             
         for certification in welder_certifications:
             self.repo.add(certification)
-        
-        assert self.repo.count() == len(welder_certifications)
+            res = self.repo.get(certification.certification_id)
+
+            assert res.certification_id == certification.certification_id
 
     
     @pytest.mark.parametrize(

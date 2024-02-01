@@ -2,6 +2,8 @@ import pytest
 
 from app.repositories import WelderRepository
 from app.shemas import WelderShema
+from app.utils.db_objects import WelderRequest
+
 
 @pytest.mark.run(order=1)
 class TestWelderRepository:
@@ -12,7 +14,7 @@ class TestWelderRepository:
         for welder in welders:
             self.repo.add(welder)
 
-        assert self.repo.count() == len(welders)
+        assert self.repo.count() == 100
 
 
     @pytest.mark.parametrize(
@@ -73,3 +75,5 @@ class TestWelderRepository:
         self.repo.delete(welder.kleymo)
 
         assert self.repo.get(welder.kleymo) == None
+
+        self.repo.add(welder)

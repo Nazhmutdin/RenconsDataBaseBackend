@@ -2,6 +2,7 @@ import pytest
 import json
 
 from client import client
+from app.shemas import WelderShema, WelderCertificationShema, WelderNDTShema
 
 
 @pytest.mark.run(order=4)
@@ -48,67 +49,122 @@ class TestV1ApiEndpoints:
 
         assert response.status_code == 200
 
+    
+    @pytest.mark.usefixtures("test_welders")
+    def test_create_welder(self, test_welders: list[WelderShema]):
+        for welder in test_welders:
+            response = client.put(
+                "/api/v1/welders/",
+                json=welder.model_dump(mode="json")
+            )
+            assert response.status_code == 200
 
-    def test_create_welder(self):
-        response = client.put(
-            "/api/v1/welders/",
-            json={
-                "name": "TestWelder",
-                "kleymo": "0000",
-            }
-        )
-
-        assert response.status_code == 200
-
-        assert client.get("/api/v1/welders/0000").status_code == 200
+            assert client.get(f"/api/v1/welders/{welder.kleymo}").status_code == 200
 
 
-    # def test_create_welder_certification(self):
-    #     response = client.put(
-    #         "/api/v1/welder-certifications/",
-    #         json={
-    #             "name": "TestWelder",
-    #             "kleymo": "0000",
-    #         }
-    #     )
+    @pytest.mark.usefixtures("test_welder_certifications")
+    def test_create_welder_certification(self, test_welder_certifications: list[WelderCertificationShema]):
 
-    #     assert response.status_code == 200
+        for cert in test_welder_certifications:
+            response = client.put(
+                "/api/v1/welder-certifications/",
+                json=cert.model_dump(mode="json")
+            )
 
-    #     assert client.get("/api/v1/welders/0000").status_code == 200
+            assert response.status_code == 200
 
+            res_json = json.loads(client.get(f"/api/v1/welder-certifications/{cert.certification_id}").content)
 
-    # def test_create_ndt(self):
-    #     response = client.put(
-    #         "/api/v1/welders/",
-    #         json={
-    #             "name": "TestWelder",
-    #             "kleymo": "0000",
-    #         }
-    #     )
-
-        assert response.status_code == 200
-
-        assert client.get("/api/v1/welders/0000").status_code == 200
+            assert res_json["certification_id"] == cert.certification_id
 
 
-    def test_update_welder(self):
-        response = client.patch(
-            "/api/v1/welders/",
-            json={
-                "name": "TestWelder1",
-                "kleymo": "0000",
-                "birthday": "2000-11-18"
-            }
-        )
+    @pytest.mark.usefixtures("test_welder_ndts")
+    def test_create_ndt(self, test_welder_ndts: list[WelderNDTShema]):
+        for ndt in test_welder_ndts:
+            response = client.put(
+                "/api/v1/ndts/",
+                json=ndt.model_dump(mode="json")
+            )
 
-        res_json = json.loads(response.content)
+            assert response.status_code == 200
 
-        assert response.status_code == 200
-        assert res_json["name"] == "TestWelder1"
+            assert client.get(f"/api/v1/ndts/{ndt.ndt_id}").status_code == 200
 
 
-    def test_delete_welder(self):
-        response = client.delete("/api/v1/welders/0000")
+    @pytest.mark.usefixtures("test_welders")
+    def test_update_welder(self, test_welders: list[WelderShema]):
 
-        assert response.status_code == 200
-        assert client.get("/api/v1/welders/0000").status_code == 400
+        for welder in test_welders:
+            json_data = welder.model_dump(mode="json")
+            json_data["name"] = "TestName"
+
+            response = client.patch(
+                "/api/v1/welders/",
+                json=json_data
+            )
+
+            res_json = json.loads(response.content)
+
+            assert response.status_code == 200
+            assert res_json["name"] == "TestName"
+
+    
+    @pytest.mark.usefixtures("test_welder_certifications")
+    def test_update_welder_certification(self, test_welder_certifications: list[WelderCertificationShema]):
+
+        for cert in test_welder_certifications:
+            json_data = cert.model_dump(mode="json")
+            json_data["details_thikness_from"] = 10000
+
+            response = client.patch(
+                "/api/v1/welder-certifications/",
+                json=json_data
+            )
+
+            res_json = json.loads(response.content)
+
+            assert response.status_code == 200
+            assert res_json["details_thikness_from"] == 10000
+
+    
+    @pytest.mark.usefixtures("test_welder_ndts")
+    def test_update_ndt(self, test_welder_ndts: list[WelderNDTShema]):
+        for ndt in test_welder_ndts:
+            json_data = ndt.model_dump(mode="json")
+            json_data["comp"] = "assds"
+            response = client.patch(
+                "/api/v1/ndts/",
+                json=json_data
+            )
+            
+            res_json = json.loads(response.content)
+
+            assert response.status_code == 200
+            assert res_json["comp"] == "assds"
+
+    
+    @pytest.mark.usefixtures("test_welder_certifications")
+    def test_delete_welder_certification(self, test_welder_certifications: list[WelderCertificationShema]):
+        for welder_certification in test_welder_certifications:
+            response = client.delete(f"/api/v1/welder-certifications/{welder_certification.certification_id}")
+            
+            assert response.status_code == 200
+            assert client.get(f"/api/v1/welder-certifications/{welder_certification.certification_id}").status_code == 400
+
+    
+    @pytest.mark.usefixtures("test_welder_ndts")
+    def test_delete_ndt(self, test_welder_ndts: list[WelderNDTShema]):
+        for welder_ndt in test_welder_ndts:
+            response = client.delete(f"/api/v1/ndts/{welder_ndt.ndt_id}")
+
+            assert response.status_code == 200
+            assert client.get(f"/api/v1/ndts/{welder_ndt.ndt_id}").status_code == 400
+
+    
+    @pytest.mark.usefixtures("test_welders")
+    def test_delete_welder(self, test_welders: list[WelderShema]):
+        for welder in test_welders:
+            response = client.delete(f"/api/v1/welders/{welder.kleymo}")
+
+            assert response.status_code == 200
+            assert client.get(f"/api/v1/welders/{welder.kleymo}").status_code == 400

@@ -52,19 +52,19 @@ def welder_ndts() -> list[WelderNDTShema]:
 
 @pytest.fixture
 def test_welders() -> list[WelderShema]:
-    welders = json.load(open("test/test_data/test_welders.json", "r", encoding="utf-8"))
+    welders = json.load(open("test/test_data/_test_welders.json", "r", encoding="utf-8"))
     return [WelderShema.model_validate(welder) for welder in welders]
 
 
 @pytest.fixture
 def test_welder_certifications() -> list[WelderCertificationShema]:
-    certifications = json.load(open("test/test_data/test_welder_certifications.json", "r", encoding="utf-8"))
+    certifications = json.load(open("test/test_data/_test_welder_certifications.json", "r", encoding="utf-8"))
     return [WelderCertificationShema.model_validate(certification) for certification in certifications]
 
 
 @pytest.fixture
 def test_welder_ndts() -> list[WelderNDTShema]:
-    ndts = json.load(open("test/test_data/test_welder_ndts.json", "r", encoding="utf-8"))
+    ndts = json.load(open("test/test_data/_test_welder_ndts.json", "r", encoding="utf-8"))
     return [WelderNDTShema.model_validate(ndt) for ndt in ndts]
 
 

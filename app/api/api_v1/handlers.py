@@ -11,11 +11,11 @@ from app.api.api_v1.depends import set_welder_ndt_request, set_welder_request, s
 v1_router = APIRouter()
 
 
-@v1_router.get(path="/welders/{id}")
-def get_welder(id: str | int) -> WelderShema:
+@v1_router.get(path="/welders/{ident}")
+def get_welder(ident: str | int) -> WelderShema:
     repo = WelderRepository()
 
-    res = repo.get(id)
+    res = repo.get(ident)
 
     if not res:
         raise HTTPException(
@@ -59,10 +59,10 @@ def update_welder(welder_data: WelderShema) -> WelderShema:
     return welder.update(**welder_data.model_dump(exclude_unset=True))
 
 
-@v1_router.delete(path="/welders/{id}")
-def delete_welder(id: str | int) -> WelderShema:
+@v1_router.delete(path="/welders/{ident}")
+def delete_welder(ident: str | int) -> WelderShema:
     repo = WelderRepository()
-    welder = repo.get(id)
+    welder = repo.get(ident)
 
     if not welder:
         raise HTTPException(
@@ -70,7 +70,7 @@ def delete_welder(id: str | int) -> WelderShema:
             detail="welder not found"
         )
 
-    repo.delete(id)
+    repo.delete(ident)
 
     return welder
 
@@ -89,16 +89,17 @@ welder certification routes
 """
 
 
-@v1_router.get(path="/welder-certifications/{id}")
-def get_welder_certification(id: str) -> WelderCertificationShema | None:
+@v1_router.get(path="/welder-certifications/{ident}")
+def get_welder_certification(ident: str) -> WelderCertificationShema | None:
     repo = WelderCertificationRepository()
 
-    res = repo.get(id)
+    res = repo.get(ident)
 
     if not res:
-        return {
-            "result": res
-        }
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="certification not found"
+        )
     
     return res
 
@@ -135,10 +136,10 @@ def update_welder_certification(certification_data: WelderCertificationShema) ->
     return certification.update(**certification_data.model_dump(exclude_unset=True))
 
 
-@v1_router.delete(path="/welder-certifications/{id}")
-def delete_welder_certification(id: str | int) -> WelderCertificationShema:
+@v1_router.delete(path="/welder-certifications/{ident}")
+def delete_welder_certification(ident: str | int) -> WelderCertificationShema:
     repo = WelderCertificationRepository()
-    certification = repo.get(id)
+    certification = repo.get(ident)
 
     if not certification:
         raise HTTPException(
@@ -146,7 +147,7 @@ def delete_welder_certification(id: str | int) -> WelderCertificationShema:
             detail="certification not found"
         )
     
-    repo.delete(id)
+    repo.delete(ident)
 
     return certification
 
@@ -165,11 +166,11 @@ ndt routes
 """
 
 
-@v1_router.get(path="/ndts/{id}")
-def get_ndt(id) -> WelderNDTShema:
+@v1_router.get(path="/ndts/{ident}")
+def get_ndt(ident) -> WelderNDTShema:
     repo = WelderNDTRepository()
 
-    ndt = repo.get(id)
+    ndt = repo.get(ident)
 
     if not ndt:
         raise HTTPException(
@@ -213,10 +214,10 @@ def update_ndt(ndt_data: WelderNDTShema) -> WelderNDTShema:
     return ndt.update(**ndt_data.model_dump(exclude_unset=True))
 
 
-@v1_router.delete(path="/ndts/{id}")
-def delete_ndt(id: str | int) -> WelderNDTShema:
+@v1_router.delete(path="/ndts/{ident}")
+def delete_ndt(ident: str | int) -> WelderNDTShema:
     repo = WelderNDTRepository()
-    ndt = repo.get(id)
+    ndt = repo.get(ident)
 
     if not ndt:
         raise HTTPException(
@@ -224,7 +225,7 @@ def delete_ndt(id: str | int) -> WelderNDTShema:
             detail="ndt not found"
         )
     
-    repo.delete(id)
+    repo.delete(ident)
 
     return ndt
 
