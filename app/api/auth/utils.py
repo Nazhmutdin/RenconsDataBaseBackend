@@ -3,8 +3,10 @@ from passlib.context import CryptContext
 from fastapi import HTTPException, status
 from pydantic import BaseModel, Field, ConfigDict
 
+from app.shemas.user_shemas import BaseUserShema
 from app.repositories import UserRepository
 from app.settings import Settings
+from app.errs import UserNotFoundError, InvalidPasswordError
 
 
 class UserAuthData(BaseModel):
@@ -15,17 +17,6 @@ class UserAuthData(BaseModel):
 class TokenData(BaseModel):
     login: str
     password: str
-
-
-class UserData(BaseModel):
-    name: str
-    login: str
-    email: str | None
-    is_superuser: bool = Field(alias="isSuperUser")
-
-    model_config = ConfigDict(
-        populate_by_name = True
-    )
 
 
 class Token(BaseModel):
@@ -59,23 +50,21 @@ def create_access_token(user_data: UserAuthData) -> str:
     )
 
 
+def check_user_in_db(login: str) -> bool:
+    return bool(UserRepository().get(login))
+
+
 def read_token(token: Token) -> TokenData:
     return TokenData(**jwt.decode(token.access_token, Settings.SECRET_KEY(), ALGORITHM))
 
 
-def get_user(login: str, password: str) -> UserData:
+def get_user(login: str, password: str) -> BaseUserShema:
     user = UserRepository().get(login)
 
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="user not found"
-        )
+        raise UserNotFoundError(login)
     
     if not verify_password(password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="invalid password"
-        )
+        raise InvalidPasswordError(password)
     
-    return UserData.model_validate(user, from_attributes=True)
+    return BaseUserShema.model_validate(user, from_attributes=True)

@@ -50,7 +50,6 @@ class BaseRepository[Shema: BaseShema, Model: BaseModel]:
                 transaction.commit()
 
             except IntegrityError as e:
-                print(e)
                     
                 transaction.rollback()
 
@@ -83,7 +82,6 @@ class BaseRepository[Shema: BaseShema, Model: BaseModel]:
                 transaction.commit()
 
             except IntegrityError as e:
-                print(e)
                 transaction.rollback()
 
 
